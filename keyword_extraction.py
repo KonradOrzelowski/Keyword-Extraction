@@ -142,7 +142,8 @@ class KeywordExtraction:
             new_len = len(profile_key_words)
             print(f"Removed {old_len - new_len} similar keywords")
             all_kw[profile_name] = profile_key_words
-        
+            
+        ## TODO: What if there are no keywords for a profile?
         return all_kw
 
 
