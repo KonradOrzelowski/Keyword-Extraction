@@ -1,0 +1,90 @@
+#%%  
+from sql_info import sql_info
+
+from info_insta import info_insta
+from profiles_names import profiles
+
+import pandas as pd
+from instagram_posts_scraper import InstagramPostsScraper
+from sqlalchemy import create_engine
+
+class MySQLConnection:
+    def __init__(self, host, user, password, database):
+        self.host = host
+        self.user = user
+        self.password = password
+        self.database = database
+        self.engine = create_engine(f'mysql+mysqlconnector://{self.user}:{self.password}@{self.host}/{self.database}')
+
+    def insert_rows(self, table_name: str, dataframe: pd.DataFrame):
+        if dataframe is None or dataframe.empty:
+            print("Dataframe is null or empty, nothing to insert.")
+            return
+        with self.engine.connect() as con:
+            result = con.execute(f"SHOW TABLES LIKE '{table_name}'")
+            if not result.fetchone():
+                raise ValueError(f"Table {table_name} does not exist.")
+            dataframe.to_sql(table_name, self.engine, if_exists='append', index=False)
+
+    
+    def select_all_from_data(self, table_name: str) -> pd.DataFrame:
+        with self.engine.connect() as con:
+            query = f"SELECT * FROM {table_name}"
+            df = pd.read_sql(query, self.engine)
+            return df
+
+        
+    def universal_query(self, querry: str) -> pd.DataFrame:
+        with self.engine.connect() as con:
+            df = pd.read_sql(querry, self.engine)
+            return df
+    def create_table(self, table_name: str):
+        with self.engine.connect() as con:
+            result = con.execute(f"SHOW TABLES LIKE '{table_name}'")
+            if result.fetchone():
+                print(f"Table {table_name} already exists.")
+            else:
+                con.execute(f"""CREATE TABLE {table_name} (
+                    id INT AUTO_INCREMENT PRIMARY KEY,
+                    profile_name VARCHAR(255) NOT NULL,
+                    date DATE NOT NULL,
+                    content TEXT NOT NULL
+                )""")
+                print(f"Table {table_name} has been created.")
+                
+
+
+def flatten(l):
+    return [item for sublist in l for item in sublist]
+        
+#%%
+
+def create_table_and_insert_rows():
+    
+    scraper = InstagramPostsScraper(info_insta['user'], info_insta['password'])
+    df = scraper.get_posts_from_timerange('harrykane')
+    
+    connection = MySQLConnection(host=sql_info['host'], user=sql_info['user'],
+                                 password=sql_info['password'], database=sql_info['database'])
+    
+    table_name = 'create_table_and_insert_rows'
+    
+    connection.create_table(table_name)
+    connection.insert_rows(table_name, df)
+
+def insert_many_rows():
+    scraper = InstagramPostsScraper(info_insta['user'], info_insta['password'])
+    connection = MySQLConnection(host=sql_info['host'], user=sql_info['user'],
+                                    password=sql_info['password'], database=sql_info['database'])
+    for profile in profiles:
+        print(profile)
+        df = scraper.get_posts_from_timerange(profile)
+        connection.insert_rows('insert_many_rows', df)
+
+
+# %%
+connection = MySQLConnection(host=sql_info['host'], user=sql_info['user'],
+                                password=sql_info['password'], database=sql_info['database'])
+
+
+# connection.universal_query('SELECT count(distinct(profile_name)) FROM instagram.posts')
