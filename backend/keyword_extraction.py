@@ -11,9 +11,9 @@ from connect_mysql import MySQLConnection
 
 from keybert import KeyBERT
 from nltk.stem.wordnet import WordNetLemmatizer
-from sentence_transformers import SentenceTransformer
+from sentence_transformers import SentenceTransformer, util
 from keyphrase_vectorizers import KeyphraseCountVectorizer
-#%%
+
 
 from typing import List
 from functools import reduce
@@ -22,10 +22,10 @@ import pandas as pd
 
 from typing import List
 
-
-
-
-
+import networkx as nx
+import matplotlib as mpl
+import matplotlib.pyplot as plt
+#%%
 
 class KeywordExtraction:
     """
@@ -100,7 +100,7 @@ class KeywordExtraction:
         """
         return self.connection.select_all_from_data(table_name='posts')
     
-    def get_kw(self, docs_df: pd.DataFrame) -> dict[str, List[str]]:
+    def get_keywords(self, docs_df: pd.DataFrame) -> dict[str, List[str]]:
         """
         Extract keywords from a set of documents.
 
@@ -130,6 +130,7 @@ class KeywordExtraction:
             # the concatenation of all elements
             # in the list key_words into a single list
             if(len(key_words) == 0):
+                all_kw[profile_name] = []
                 continue
 
             if type(key_words[0]) == list:                             
@@ -143,30 +144,48 @@ class KeywordExtraction:
             print(f"Removed {old_len - new_len} similar keywords")
             all_kw[profile_name] = profile_key_words
             
-        ## TODO: What if there are no keywords for a profile?
         return all_kw
 
+    def encode_keywords(self, profiles: list[str], key_words: dict) -> dict:
+        encoding = {}
+        for profile in profiles:
+            encoding[profile] = self.sentence_transformer.encode(key_words[profile],
+                                                                 show_progress_bar=True)
+        return encoding
 
-    # def find_all_keywords(self, profiles: list[str], all_docs: dict, threshold:float) -> dict:
-    #     with CodeTimer('self.all_kw'):
-    #         all_kw = {}
-    #         for profile in profiles:
-    #             print(profile)
-    #             try:
-    #                 all_kw[profile] = utils.extract_kw_from_docs(
-    #                     all_docs[profile], self.model, self.vectorizer)
-    #                 all_kw[profile] = utils.remove_sim_kw(all_kw[profile], threshold)
-    #             except:
-    #                 all_kw[profile] = ['']
-    #     return all_kw
+    def get_adjacency_matrix(self, profiles_names, en_key_words):
+        df_list = []
+        for i in profiles_names:
+            lst = []
+            for j in profiles_names:
+                try:
+                    all_en = en_key_words
+                    similarity = self.get_cos_similarity(all_en[i], all_en[j], threshold=0.5)
+                    lst.append(similarity)
+                except:
+                    lst.append(0)
+            df_list.append(lst)
 
-    # def encode_keywords(self, profiles: list[str], key_words: dict) -> dict:
-    #     with CodeTimer('self.encoding'):
-    #         encoding = {}
-    #         for profile in profiles:
-    #             encoding[profile] = self.sentence_transformer.encode(key_words[profile],
-    #                                                                    show_progress_bar=True)
-    #     return encoding
+        na = np.array(df_list)
+        np.fill_diagonal(na, 0)
+        row_sums = na.sum(axis=1)
+        na /= row_sums[:, np.newaxis]
+        na = np.nan_to_num(na)
+
+        df = pd.DataFrame(na)
+        df.columns = profiles_names
+        df.index = profiles_names
+
+        return df
+    def get_cos_similarity(self, nd1: np.ndarray, nd2: np.ndarray,
+                                                threshold = 0.5) -> np.float32:
+        
+        cos_ndarray = util.pytorch_cos_sim(nd1, nd2).numpy()
+        cos_ndarray = cos_ndarray.flatten()
+        
+        N_most = np.sort(cos_ndarray)[::-1][:10]
+        
+        return np.sum(N_most[N_most>threshold])
 
     # def add_profile(self, profile, start_date=datetime(2000, 11, 1), end_date=datetime(2023, 1, 5)):
     #     self.all_docs[profile] = utils.read_from_time_range(self.lemmatizer, profile, start_date, end_date)
@@ -175,14 +194,38 @@ class KeywordExtraction:
     #     self.encoding[profile] = self.sentence_transformer.encode(self.all_kw[profile], show_progress_bar=True)
 
 #%%
+def main():
+    ke = KeywordExtraction()
+    df = ke.read_table('posts')
 
-ke = KeywordExtraction()
-df = ke.read_table('posts')
-df.head()
+    # key_words = ke.get_keywords(df.sample(n=200, random_state=1))
+    key_words = ke.get_keywords(df)
+    profiles_names = list(key_words.keys())
+    en_key_words = ke.encode_keywords(profiles_names, key_words)
+    adjacency_matrix = ke.get_adjacency_matrix(profiles_names, en_key_words)
 
-key_words = ke.get_kw(df.sample(n=20, random_state=1))
 
-# profiles, profile_name = get_kw(ke, df)
+    # Plot the graph using networkx
+    iG = nx.from_pandas_adjacency(adjacency_matrix)
+    pos = nx.spring_layout(iG)
 
-# get random rows from df
-# df = df.sample(n=1000, random_state=1)
+
+    _,weights = zip(*nx.get_edge_attributes(iG,'weight').items())
+
+    nodes = nx.draw_networkx_nodes(iG, pos, node_color="b")
+    edges = nx.draw_networkx_edges(iG, pos,
+                                edge_color=weights, edge_cmap=plt.cm.Blues)
+    nx.draw_networkx_labels(iG, pos, font_color="black")
+
+    fig = mpl.pyplot.gcf()
+    fig.set_size_inches(18.5, 10.5)
+    # fig.savefig('insta.png', dpi=360)
+    plt.show()
+
+if __name__ == "__main__":
+    main()
+#%%
+# columns = {"id": "INT AUTO_INCREMENT PRIMARY KEY", "profile_name": "VARCHAR(255) NOT NULL", "key_word": "VARCHAR(255) NOT NULL"}
+
+# ke.connection.add_table("key_words", columns)
+

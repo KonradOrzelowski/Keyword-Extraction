@@ -55,21 +55,37 @@ class MySQLConnection:
                     content TEXT NOT NULL
                 )""")
                 print(f"Table {table_name} has been created.")
+
+    def check_table_existence(self, table_name: str) -> bool:
+        with self.engine.connect() as con:
+            result = con.execute(f"SHOW TABLES LIKE '{table_name}'")
+            return bool(result.fetchone())
+
+    def add_table(self, table_name: str, columns: dict):
+        if self.check_table_existence(table_name):
+            print(f"Table {table_name} already exists.")
+            return
+        with self.engine.connect() as con:
+            column_definitions = [f"{column} {data_type}" for column, data_type in columns.items()]
+            column_definitions_str = ", ".join(column_definitions)
+            con.execute(f"CREATE TABLE {table_name} ({column_definitions_str})")
+            print(f"Table {table_name} has been created.")
                 
-
-
 
         
 #%%
 def main():
     connection = MySQLConnection(sql_info['host'], sql_info['user'],
                                  sql_info['password'], sql_info['database'])
+
+    columns = {"id": "INT AUTO_INCREMENT PRIMARY KEY", "column1": "VARCHAR(255) NOT NULL", "column2": "DATE NOT NULL"}
+    connection.add_table("new_table", columns)
+
     df = connection.universal_query('SELECT profile_name, COUNT(*) FROM posts GROUP BY profile_name')
     print(df.head())
 #%%
 # if __name__ == '__main__':
 #     main() 
-
 
 
 # def create_table_and_insert_rows():
