@@ -198,12 +198,13 @@ def main():
     ke = KeywordExtraction()
     df = ke.read_table('posts')
 
-    # key_words = ke.get_keywords(df.sample(n=200, random_state=1))
-    key_words = ke.get_keywords(df)
+    key_words = ke.get_keywords(df.sample(n=200, random_state=1))
+    # key_words = ke.get_keywords(df)
     profiles_names = list(key_words.keys())
     en_key_words = ke.encode_keywords(profiles_names, key_words)
     adjacency_matrix = ke.get_adjacency_matrix(profiles_names, en_key_words)
 
+    print(adjacency_matrix.head())
 
     # Plot the graph using networkx
     iG = nx.from_pandas_adjacency(adjacency_matrix)
@@ -222,8 +223,8 @@ def main():
     # fig.savefig('insta.png', dpi=360)
     plt.show()
 
-if __name__ == "__main__":
-    main()
+# if __name__ == "__main__":
+#     main()
 #%%
 # columns = {"id": "INT AUTO_INCREMENT PRIMARY KEY", "profile_name": "VARCHAR(255) NOT NULL", "key_word": "VARCHAR(255) NOT NULL"}
 

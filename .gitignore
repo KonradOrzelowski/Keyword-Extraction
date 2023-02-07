@@ -156,3 +156,6 @@ sofifa_scraping.py
 profiles_names.py
 config.json
 utils.py
+
+frontend/node_modules/*
+*.bak

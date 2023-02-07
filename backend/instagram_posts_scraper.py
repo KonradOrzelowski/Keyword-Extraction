@@ -124,8 +124,10 @@ def main():
     scraper = InstagramPostsScraper()
     df = scraper.get_posts_from_timerange('harrykane', number_of_posts=10, time_range=30)
 
-# if __name__ == "__main__":
-#     main()
+if __name__ == "__main__":
+    main()
+
+#%%
 # profile.biography       
 
 

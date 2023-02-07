@@ -83,10 +83,10 @@ def main():
 
     df = connection.universal_query('SELECT profile_name, COUNT(*) FROM posts GROUP BY profile_name')
     print(df.head())
-#%%
-# if __name__ == '__main__':
-#     main() 
+if __name__ == '__main__':
+    main() 
 
+#%%
 
 # def create_table_and_insert_rows():
     
@@ -117,3 +117,4 @@ def main():
 
 
 # connection.universal_query('SELECT count(distinct(profile_name)) FROM instagram.posts')
+# %%
