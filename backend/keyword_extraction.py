@@ -210,6 +210,7 @@ def main():
     iG = nx.from_pandas_adjacency(adjacency_matrix)
     pos = nx.spring_layout(iG)
 
+    positions = list(map(lambda row: ({'id': row, 'x': pos[row][0], 'y': pos[row][1]}), pos))
 
     _,weights = zip(*nx.get_edge_attributes(iG,'weight').items())
 
@@ -230,3 +231,9 @@ def main():
 
 # ke.connection.add_table("key_words", columns)
 
+#%%
+
+# positions = {{'id': row, 'x': x, 'y': y} for row, (x, y) in pos.items()}
+
+# for row in pos:
+#     print({'id': row, 'x': pos[row][0], 'y': pos[row][1]})

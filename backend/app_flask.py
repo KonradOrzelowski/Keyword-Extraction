@@ -1,4 +1,6 @@
 from flask import Flask, jsonify, request
+from flask_cors import CORS
+
 import networkx as nx
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -19,6 +21,7 @@ print(adjacency_matrix.head())
 iG = nx.from_pandas_adjacency(adjacency_matrix)
 pos = nx.spring_layout(iG)
 
+positions = list(map(lambda row: ({'id': row, 'x': pos[row][0], 'y': pos[row][1]}), pos))
 
 _,weights = zip(*nx.get_edge_attributes(iG,'weight').items())
 
@@ -36,31 +39,14 @@ nx.draw_networkx_labels(iG, pos, font_color="black")
 #%%
 # Path: backend\app_flask.py
 
-
-
-for row in pos:
-    pos[row] = pos[row].tolist()
-    print(pos[row])
-
 app = Flask(__name__)
+CORS(app)
+
 @app.route("/", methods=["GET"])
 def find_similar_insta():
-    return jsonify(pos)
+    return jsonify(positions)
 
 
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
-
-
-# from flask import Flask
-
-# app = Flask(__name__)
-
-# @app.route("/")
-# def hello_world():
-#     return "<p>Hello, World!</p>"
-
-
-# if __name__ == '__main__':
-#     app.run(host='0.0.0.0')
