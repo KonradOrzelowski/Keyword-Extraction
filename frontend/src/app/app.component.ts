@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 
+
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -14,7 +16,11 @@ export class AppComponent implements OnInit {
   ngOnInit() {
     this.http.get('http://127.0.0.1:5000').subscribe(data => {
       this.data = data;
-      console.log(this.data);
+      
+      const nodes = transformData(this.data);
+      console.log(nodes);
+
+      
     });
 
 
@@ -22,4 +28,14 @@ export class AppComponent implements OnInit {
     //   console.log(i);
     // }
   }
+}
+
+function transformData(data: any[]): any {
+  return data.map(item => {
+    return {
+      id: item.id,
+      x: item.x,
+      y: item.y
+    };
+  });
 }
