@@ -22,6 +22,7 @@ pip install sqlalchemy==1.4
 
 ```
 cd frontend
+ng serve --open 
 https://bobbyhadz.com/blog/node-await-is-only-valid-in-async-function
 ```
 <!-- $ python -m venv projectname
