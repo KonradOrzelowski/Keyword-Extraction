@@ -15,6 +15,8 @@ profiles_names = list(key_words.keys())
 en_key_words = ke.encode_keywords(profiles_names, key_words)
 adjacency_matrix = ke.get_adjacency_matrix(profiles_names, en_key_words)
 
+
+
 print(adjacency_matrix.head())
 
 # Plot the graph using networkx
@@ -34,7 +36,13 @@ nx.draw_networkx_labels(iG, pos, font_color="black")
 # fig.set_size_inches(18.5, 10.5)
 # # fig.savefig('insta.png', dpi=360)
 # plt.show()
+weighted_adjacency_list = []
 
+for row_name, row in adjacency_matrix.iterrows():
+    for col_name, value in row.iteritems():
+        if value > 0:
+            lst = {'source': row_name, 'target': col_name, 'weight': value}
+            weighted_adjacency_list.append(lst)
 
 #%%
 # Path: backend\app_flask.py
@@ -45,6 +53,18 @@ CORS(app)
 @app.route("/", methods=["GET"])
 def find_similar_insta():
     return jsonify(positions)
+
+
+@app.route("/weighted_edges", methods=["GET"])
+def get_weighted_edges():
+    print("get_weighted_edges function called")
+    try:
+        result = jsonify(weighted_adjacency_list)
+        print("jsonify succeeded")
+        return result
+    except Exception as e:
+        print(f"Error in jsonify: {e}")
+        return "Error converting data to JSON format", 500
 
 
 

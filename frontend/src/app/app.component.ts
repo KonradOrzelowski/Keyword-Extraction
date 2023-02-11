@@ -15,6 +15,9 @@ export class AppComponent implements OnInit {
   constructor(private http: HttpClient) {}
 
   ngOnInit() {
+    
+
+
     this.http.get('http://127.0.0.1:5000').subscribe(data => {
       this.data = data;
       
@@ -32,6 +35,7 @@ export class AppComponent implements OnInit {
       // .style("width", "100px");
       var svg = d3.select("svg"), width = +svg.attr("width"), height = +svg.attr("height");
     
+
       var graph = { nodes: footballer_cor,
                     link: [
                     {'source': "kalvinphillips", 'target': "jarrodbowen"},
@@ -88,4 +92,19 @@ function transformData(data: any[]): any {
       y: item.y
     };
   });
+}
+async function get_weighted_edges() {
+  const response = await fetch('http://127.0.0.1:5000/weighted_edges');
+  const data = await response.json();
+
+  // const data = await response.json().then(data => data.__zone_symbol__value);
+  // console.log('This data inside fetch');
+  // console.log(data);
+
+  // for (let i = 0; i < data.length; i++) {
+  //   console.log(data[i]);
+  // }
+  
+  
+  return data;
 }
