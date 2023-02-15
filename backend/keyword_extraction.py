@@ -198,8 +198,8 @@ def main():
     ke = KeywordExtraction()
     df = ke.read_table('posts')
 
-    key_words = ke.get_keywords(df.sample(n=200, random_state=1))
-    # key_words = ke.get_keywords(df)
+    # key_words = ke.get_keywords(df.sample(n=200, random_state=1))
+    key_words = ke.get_keywords(df)
     profiles_names = list(key_words.keys())
     en_key_words = ke.encode_keywords(profiles_names, key_words)
     adjacency_matrix = ke.get_adjacency_matrix(profiles_names, en_key_words)

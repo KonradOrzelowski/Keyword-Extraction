@@ -41,26 +41,42 @@ export class AppComponent implements OnInit {
       var simulation = this.make_simulation(graph, width, height);
       
       var link = this.make_links(svg, graph);
+
+      var text_and_node = svg.append("g").selectAll("g").data(graph.nodes).enter().append("g");
+      var circles = text_and_node.append("circle").attr("r", 10).attr("fill", "red");
+      var ctexts = text_and_node.append("text").text(function(d: any) { return d.id; });
+
+      text_and_node.on("click", function(d) {
+        console.log(d.target.__data__.id);
+    })
+      
+      
+      // console.log(link);
     
-      var node =this.make_nodes(svg, graph);
+      // var node =this.make_nodes(svg, graph);
+      // // console.log(node);
+      // var text = this.make_text(svg, graph);
 
-      var text = this.make_text(svg, graph);
-
-      this.attach_elements(simulation, link, node, text);
+      // this.attach_elements(simulation, link, node, text);
+      simulation.on("tick", function() {
+        link.attr("x1", function(d: any) { return d.source.x; })
+            .attr("y1", function(d: any) { return d.source.y; })
+            .attr("x2", function(d: any) { return d.target.x; })
+            .attr("y2", function(d: any) { return d.target.y; });
+        text_and_node.attr("transform", function(d: any) { return "translate(" + Math.abs(d.x) + "," + Math.abs(d.y) + ")"; });
+            // text_and_node.attr("x", function(d: any) { return Math.abs(d.x); })
+            // .attr("y", function(d: any) { return Math.abs(d.y); });
+          
+      });
 
   }
-  make_text(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, graph: { nodes: any; link: any; }) {
-    var text = svg.append("g").selectAll("text")
-    .data(graph.nodes).enter().append("text")
-    .text(function(d: any) { return d.id; })
-    return text;
-  }
+
   async fetch_http_endpoint(url: string) {
     const response = await this.http.get(url).toPromise();
     return response;
   }
 
-  make_simulation(graph: any, width: number, height: number) {
+  make_simulation(graph: { nodes: any; link: any; }, width: number, height: number) {
     var simulation = d3.forceSimulation(this.footballer_cor)
     .force("link", d3.forceLink(graph.link).id(function(d: any) { return d.id; }))
     .force("charge", d3.forceManyBody().strength(-25))
@@ -69,7 +85,7 @@ export class AppComponent implements OnInit {
     return simulation;
   }
 
-  make_links(svg: any, graph: any) {
+  make_links(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, graph: { nodes: any; link: any; }) {
     var link = svg.append("g").selectAll("line")
                   .data(graph.link).enter().append("line")
                   .attr("stroke", "black")
@@ -81,7 +97,7 @@ export class AppComponent implements OnInit {
     return link;
   }
 
-  make_nodes(svg: any, graph: any) {
+  make_nodes(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, graph: { nodes: any; link: any; }) {
     var node = svg.append("g").selectAll("circle")
               .data(graph.nodes).enter().append("circle")
               .attr("r", 5).attr("fill", "red");
@@ -89,7 +105,12 @@ export class AppComponent implements OnInit {
     return node;
   }
 
-
+  make_text(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, graph: { nodes: any; link: any; }) {
+    var text = svg.append("g").selectAll("text")
+    .data(graph.nodes).enter().append("text")
+    .text(function(d: any) { return d.id; })
+    return text;
+  }
 
 
   attach_elements(simulation: any, link: any, node: any, text: any) {
