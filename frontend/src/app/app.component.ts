@@ -44,8 +44,16 @@ export class AppComponent implements OnInit {
     
       var node =this.make_nodes(svg, graph);
 
-      this.attach_nodes_links(simulation, link, node);
+      var text = this.make_text(svg, graph);
 
+      this.attach_elements(simulation, link, node, text);
+
+  }
+  make_text(svg: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, graph: { nodes: any; link: any; }) {
+    var text = svg.append("g").selectAll("text")
+    .data(graph.nodes).enter().append("text")
+    .text(function(d: any) { return d.id; })
+    return text;
   }
   async fetch_http_endpoint(url: string) {
     const response = await this.http.get(url).toPromise();
@@ -77,27 +85,14 @@ export class AppComponent implements OnInit {
     var node = svg.append("g").selectAll("circle")
               .data(graph.nodes).enter().append("circle")
               .attr("r", 5).attr("fill", "red");
-    // var node = svg.append("g").selectAll("rect")
-    // .data(graph.nodes).enter().append("rect")
-    // .attr("width", 10).attr("height", 10)
-    // .attr("fill", "red");
-              
-    var label = svg.append("g").selectAll("text")
-              .data(graph.nodes).enter().append("text")
-              .text(function(d: any) { return d.id; })
-              .attr("text-anchor", "middle")
-              .attr("dominant-baseline", "central")
-              .attr("x", function(d: any) { return d.x; })
-              .attr("y", function(d: any) { return d.y; });
 
-      // console.log(label);
     return node;
   }
 
 
 
 
-  attach_nodes_links(simulation: any, link: any, node: any) {
+  attach_elements(simulation: any, link: any, node: any, text: any) {
     simulation.on("tick", function() {
       link.attr("x1", function(d: any) { return d.source.x; })
           .attr("y1", function(d: any) { return d.source.y; })
@@ -107,6 +102,11 @@ export class AppComponent implements OnInit {
 
       node.attr("cx", function(d: any) { return Math.abs(d.x); })
           .attr("cy", function(d: any) { return Math.abs(d.y); });
+
+      text.attr("x", function(d: any) { return Math.abs(d.x); })
+          .attr("y", function(d: any) { return Math.abs(d.y); });
+
+      
     });
   }
 
@@ -120,13 +120,3 @@ export class AppComponent implements OnInit {
     });
   }
 }
-
-// function transform_data(data: any[]): any {
-//   return data.map(item => {
-//     return {
-//       id: item.id,
-//       x: item.x,
-//       y: item.y
-//     };
-//   });
-// }
