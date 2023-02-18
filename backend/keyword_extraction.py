@@ -100,51 +100,51 @@ class KeywordExtraction:
         """
         return self.connection.select_all_from_data(table_name='posts')
     
-    def get_keywords(self, docs_df: pd.DataFrame) -> dict[str, List[str]]:
-        """
-        Extract keywords from a set of documents.
-
-        Args:
-        - docs_df: pandas DataFrame, containing documents to extract keywords from
-
-        Returns:
-        - dict, mapping profile names to lists of keywords
-
-
-        When comparing two sentences, Jaccard similarity is often a better choice
-        than cosine similarity. Jaccard similarity is designed to compare the similarity
-        between two sets, and a sentence can be represented as a set of words.
-        This allows Jaccard similarity to take into account not only the presence
-        or absence of words, but also their frequency and order.
-        """
+    def get_keywords(self, docs_df: pd.DataFrame) -> pd.DataFrame:
         unique_profile_names = docs_df['profile_name'].unique().tolist()
-        profiles = docs_df.groupby('profile_name')['content'].apply(list).to_dict()
-        all_kw = {}
-
+        profiles = docs_df.groupby('profile_name').agg({'content': list, 'id': list})
+        df = pd.DataFrame()
+        '''
+        Cases:
+        Single post:
+            1. key_words is a list of tuples
+        Many posts:
+            2. kw is a list of lists
+            3. kw is a []
+        '''
         for profile_name in unique_profile_names:
-            print(f"Extracting keywords for profile: {profile_name}")
-            # Get all keywords for the profile
-            key_words = self.model.extract_keywords(docs=profiles[profile_name], 
+            key_words = self.model.extract_keywords(docs=profiles.loc[profile_name][0], 
                                             vectorizer=self.vectorizer)
-        
-            # the concatenation of all elements
-            # in the list key_words into a single list
-            if(len(key_words) == 0):
-                all_kw[profile_name] = []
-                continue
+            print(f' {profile_name} is a {type(key_words[0])}')
+            idx = 0
 
-            if type(key_words[0]) == list:                             
-                key_words = functools.reduce(lambda x,y: x+y,key_words)
-            # Filter keywords by threshold
-            profile_key_words = [i[0] for i in key_words if i[1] > self.threshold_kw]
-            # Remove similar keywords
-            old_len = len(profile_key_words)
-            profile_key_words = self.remove_similar_keywords(profile_key_words)
-            new_len = len(profile_key_words)
-            print(f"Removed {old_len - new_len} similar keywords")
-            all_kw[profile_name] = profile_key_words
+
+            # Single post:
+            #   1. key_words is a list of tuples
+            if(type(key_words[0]) == tuple):
+                # print('1. kw is a list of tuples')
+                temp = pd.DataFrame(key_words)
+                temp['post_id'] = profiles.loc[profile_name][1][idx]
+                # print(temp)
+                df = df.append(temp, ignore_index=True)
+            # Many posts:
+            #   2. kw is a []
+            #   3. kw is a list of lists
+            else:
+                for kw in key_words:
+                    # 2. kw is a []
+                    if(kw == []):
+                        pass
+                    # 3. kw is a list of lists
+                    elif(type(kw) == list):
+                        temp = pd.DataFrame(kw)
+                        temp['post_id'] = profiles.loc[profile_name][1][idx]
+                        df = df.append(temp, ignore_index=True)
+                    else:
+                        TypeError('kw is not a list of tuples, list of lists or []')
+                    idx += 1
             
-        return all_kw
+        return df
 
     def encode_keywords(self, profiles: list[str], key_words: dict) -> dict:
         encoding = {}
