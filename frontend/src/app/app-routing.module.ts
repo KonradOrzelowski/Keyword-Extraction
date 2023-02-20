@@ -5,7 +5,8 @@ import { PageNetworkGraphComponent } from './page-network-graph/page-network-gra
 import { PageFootballerDetailsComponent } from './page-footballer-details/page-footballer-details.component';
 
 const routes: Routes = [
-  {  path: 'details', component: PageFootballerDetailsComponent },
+  
+  {  path: 'details/:data', component: PageFootballerDetailsComponent },
   { path: '', component: PageNetworkGraphComponent }
 ];
 

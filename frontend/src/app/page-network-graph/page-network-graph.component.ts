@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import * as d3 from 'd3';
+import { DataService } from 'src/app/data.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-page-network-graph',
@@ -11,7 +13,9 @@ export class PageNetworkGraphComponent {
   footballer_cor: any;
   weighted_edges: any;
 
-  constructor(private http: HttpClient) {}
+  constructor(private router: Router, private http: HttpClient, private dataService: DataService) {}
+
+
 
   async ngOnInit() {
   
@@ -24,34 +28,26 @@ export class PageNetworkGraphComponent {
     // Initialize the graph
     var svg = d3.select("svg"), width = +svg.attr("width"), height = +svg.attr("height");
     var graph = { nodes: this.footballer_cor, link: this.weighted_edges };
-
-      // graph.nodes.forEach((d: any, i: number) => {
-        
-      //   d.x = Math.abs(10*this.footballer_cor[i].x);
-      //   d.y = Math.abs(10*this.footballer_cor[i].y);
-
-      // });
       
-      var simulation = this.make_simulation(graph, width, height);
-      
-      var link = this.make_links(svg, graph);
-
-      var text_and_node = svg.append("g").selectAll("g").data(graph.nodes).enter().append("g");
-      var circles = text_and_node.append("circle").attr("r", 10).attr("fill", "red");
-      var ctexts = text_and_node.append("text").text(function(d: any) { return d.id; });
-
-      text_and_node.on("click", function(d) {
-        console.log(d.target.__data__.id);
-    })
-      
-      
-      // console.log(link);
+    var simulation = this.make_simulation(graph, width, height);
     
-      // var node =this.make_nodes(svg, graph);
-      // // console.log(node);
-      // var text = this.make_text(svg, graph);
+    var link = this.make_links(svg, graph);
 
-      // this.attach_elements(simulation, link, node, text);
+    var text_and_node = svg.append("g").selectAll("g").data(graph.nodes).enter().append("g");
+    var circles = text_and_node.append("circle").attr("r", 10).attr("fill", "red");
+    var ctexts = text_and_node.append("text").text(function(d: any) { return d.id; });
+
+    text_and_node.on("click", (d) => {
+      this.router.navigate(['/details/:data'], { queryParams: { id: d.target.__data__.id } });
+      //console.log(d.target.__data__.id);
+      this.sendData(d.target.__data__.id);
+      console.log('------------------------');
+      console.log(this.dataService.getData());
+      console.log('------------------------');
+      
+    });
+      
+
       simulation.on("tick", function() {
         link.attr("x1", function(d: any) { return d.source.x; })
             .attr("y1", function(d: any) { return d.source.y; })
@@ -134,4 +130,8 @@ export class PageNetworkGraphComponent {
       };
     });
   }
+  sendData(str2pass: string) {
+    this.dataService.setData(str2pass);
+  }
 }
+
