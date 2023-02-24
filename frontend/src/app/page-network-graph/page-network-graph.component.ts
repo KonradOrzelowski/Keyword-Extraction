@@ -38,13 +38,13 @@ export class PageNetworkGraphComponent {
     var ctexts = text_and_node.append("text").text(function(d: any) { return d.id; });
 
     text_and_node.on("click", (d) => {
-      this.router.navigate(['/details/:data'], { queryParams: { id: d.target.__data__.id } });
+      
       //console.log(d.target.__data__.id);
       this.sendData(d.target.__data__.id);
-      console.log('------------------------');
-      console.log(this.dataService.getData());
-      console.log('------------------------');
-      
+      // console.log('------------------------');
+      // console.log(this.dataService.getData());
+      // console.log('------------------------');
+      this.router.navigate(['/details/:data'], { queryParams: { id: d.target.__data__.id } });
     });
       
 

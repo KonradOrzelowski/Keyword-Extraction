@@ -67,6 +67,17 @@ def get_weighted_edges():
         return "Error converting data to JSON format", 500
 
 
+@app.route("/similarity/insta/<player_name>", methods=["GET"])
+@app.route("/similarity/insta/<player_name>/<int:number>", methods=["GET"])
+def get_insta_similarity(player_name: str, number: int = 5):
+
+    notna_and_not_zero = adjacency_matrix[player_name].notna() & (adjacency_matrix[player_name] != 0)
+    similarity = adjacency_matrix[player_name][notna_and_not_zero].nlargest(number).to_json()
+    
+    return jsonify(similarity)
+    
+
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
