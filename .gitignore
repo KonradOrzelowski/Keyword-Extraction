@@ -153,11 +153,12 @@ cython_debug/
 #.idea/
 info_insta.py
 sql_info.py
-sofifa_scraping.py
+
 profiles_names.py
 config.json
 utils.py
 keyword_extraction_old.py
+sofifa_processed.py
 
 
 

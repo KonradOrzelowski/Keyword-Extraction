@@ -44,6 +44,12 @@ for row_name, row in adjacency_matrix.iterrows():
             lst = {'source': row_name, 'target': col_name, 'weight': value}
             weighted_adjacency_list.append(lst)
 
+import profiles_names as pn
+from sofifa_scraping import SofifaScraping
+so = SofifaScraping('sofifa_processed.csv')
+so.get_footballer_dict(pn.names)
+adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(pn.names)
+
 #%%
 # Path: backend\app_flask.py
 
@@ -76,11 +82,6 @@ def get_insta_similarity(player_name: str, number: int = 5):
     
     return jsonify(similarity)
     
-
-from sofifa_scraping import SofifaScraping
-so = SofifaScraping('sofifa_processed.csv')
-so.get_footballer_dict(profiles_names)
-adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(profiles_names)
 
 @app.route("/similarity/sofifa/<player_name>", methods=["GET"])
 @app.route("/similarity/sofifa/<player_name>/<int:number>", methods=["GET"])
