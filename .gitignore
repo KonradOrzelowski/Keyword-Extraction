@@ -158,7 +158,7 @@ profiles_names.py
 config.json
 utils.py
 keyword_extraction_old.py
-sofifa_processed.py
+sofifa_processed.csv
 
 
 
