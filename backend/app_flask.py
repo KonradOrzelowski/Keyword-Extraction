@@ -9,18 +9,18 @@ from keyword_extraction import KeywordExtraction
 ke = KeywordExtraction()
 df = ke.read_table('posts')
 
-key_words = ke.get_keywords(df.sample(n=200, random_state=1))
-# key_words = ke.get_keywords(df)
+# key_words = ke.get_keywords(df.sample(n=200, random_state=1))
+key_words = ke.get_keywords(df)
 profiles_names = list(key_words.keys())
 en_key_words = ke.encode_keywords(profiles_names, key_words)
-adjacency_matrix = ke.get_adjacency_matrix(profiles_names, en_key_words)
+adjacency_matrix_insta = ke.get_adjacency_matrix(profiles_names, en_key_words)
 
 
 
-print(adjacency_matrix.head())
+print(adjacency_matrix_insta.head())
 
 # Plot the graph using networkx
-iG = nx.from_pandas_adjacency(adjacency_matrix)
+iG = nx.from_pandas_adjacency(adjacency_matrix_insta)
 pos = nx.spring_layout(iG)
 
 positions = list(map(lambda row: ({'id': row, 'x': pos[row][0], 'y': pos[row][1]}), pos))
@@ -32,23 +32,21 @@ edges = nx.draw_networkx_edges(iG, pos,
                             edge_color=weights, edge_cmap=plt.cm.Blues)
 nx.draw_networkx_labels(iG, pos, font_color="black")
 
-# fig = mpl.pyplot.gcf()
-# fig.set_size_inches(18.5, 10.5)
-# # fig.savefig('insta.png', dpi=360)
-# plt.show()
+
 weighted_adjacency_list = []
 
-for row_name, row in adjacency_matrix.iterrows():
+for row_name, row in adjacency_matrix_insta.iterrows():
     for col_name, value in row.iteritems():
         if value > 0:
             lst = {'source': row_name, 'target': col_name, 'weight': value}
             weighted_adjacency_list.append(lst)
 
+#%% Get values from sofifa
 import profiles_names as pn
 from sofifa_scraping import SofifaScraping
 so = SofifaScraping('sofifa_processed.csv')
 so.get_footballer_dict(pn.names)
-adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(pn.names)
+adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(pn.dct_profiles)
 
 #%%
 # Path: backend\app_flask.py
@@ -77,8 +75,8 @@ def get_weighted_edges():
 @app.route("/similarity/insta/<player_name>/<int:number>", methods=["GET"])
 def get_insta_similarity(player_name: str, number: int = 5):
 
-    notna_and_not_zero = adjacency_matrix[player_name].notna() & (adjacency_matrix[player_name] != 0)
-    similarity = adjacency_matrix[player_name][notna_and_not_zero].nlargest(number).to_json()
+    notna_and_not_zero = adjacency_matrix_insta[player_name].notna() & (adjacency_matrix_insta[player_name] != 0)
+    similarity = adjacency_matrix_insta[player_name][notna_and_not_zero].nlargest(number).to_json()
     
     return jsonify(similarity)
     

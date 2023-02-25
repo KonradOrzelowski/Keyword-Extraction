@@ -28,7 +28,8 @@ class SofifaScraping:
         self.footballers = {name: self.get_footballer_atr(name).values.flatten() for name in names}
 
 
-    def get_cosine_similarity_matrix(self, names: list[str]):
+    def get_cosine_similarity_matrix(self, dct_profiles: dict):
+        names = list(dct_profiles.values())
         # create a temporary dictionary that maps each name to its vector
         temp_dict = {name: self.footballers[name] for name in names}
         
@@ -59,8 +60,10 @@ class SofifaScraping:
         # create a pandas dataframe from the array
         df = pd.DataFrame(cos_sim_array)
         # set the column and index names to the footballer names
-        df.columns = names
-        df.index = names
+        insta_names = list(dct_profiles.keys())
+
+        df.columns = insta_names
+        df.index = insta_names
 
         return df
     
