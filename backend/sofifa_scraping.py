@@ -73,7 +73,7 @@ def main():
     
     so = SofifaScraping('sofifa_processed.csv')
     so.get_footballer_dict(pn.names)
-    adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(pn.names)
+    adjacency_matrix_sofifa = so.get_cosine_similarity_matrix(pn.dct_profiles)
     print(adjacency_matrix_sofifa)
 
       

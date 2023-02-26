@@ -2,9 +2,10 @@
 
 ## Init 
 ### How to activate backend
-``` 
-backend\.venv\scripts\activate
-flask --app backend\app_flask.py run
+```
+cd backend
+.venv\scripts\activate
+flask --app app_flask.py run
 ```
 
 ### How to activate frontend

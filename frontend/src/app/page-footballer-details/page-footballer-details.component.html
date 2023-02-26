@@ -1,1 +1,9 @@
 <p>The data passed from the home page is: |{{ data }}|</p>
+
+<!-- <p>Similar footballers: {{ similar_footballers_insta }}</p> -->
+
+<div *ngFor="let data of similar_footballers_insta">
+    <p>Name: {{ data.Name }}</p>
+    <p>Score: {{ data.Score }}</p>
+  </div>
+  

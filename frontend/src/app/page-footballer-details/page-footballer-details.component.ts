@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 import { DataService } from 'src/app/data.service';
 
@@ -11,16 +12,45 @@ import { DataService } from 'src/app/data.service';
 export class PageFootballerDetailsComponent implements OnInit {
   data: string  = 'sNo data';
 
-  constructor(private route: ActivatedRoute, private dataService: DataService) { }
+  similar_footballers_insta : any;
+  similar_footballers_sofifa: any;
 
-  ngOnInit() {
+  constructor(private route: ActivatedRoute, private http: HttpClient, private dataService: DataService) { }
+
+  async ngOnInit() {
     console.log('++++++++++++++++++');
     this.data = this.dataService.getData(); 
-    //console.log(this.dataService.getData());
-     // this.data = this.dataService.getData();
-     //this.data = this.route.snapshot.paramMap.get('data')!;
-      //console.log(this.data);
-      console.log('++++++++++++++++++');
+    
+    this.similar_footballers_insta  = await this.fetch_http_endpoint(`http://127.0.0.1:5000/similarity/insta/${this.data}`);
+    this.similar_footballers_sofifa = await this.fetch_http_endpoint(`http://127.0.0.1:5000/similarity/sofifa/${this.data}`);
 
+    this.similar_footballers_insta  = this.string2array(this.similar_footballers_insta);
+    this.similar_footballers_sofifa = this.string2array(this.similar_footballers_sofifa);
+
+    console.log(this.data);
+    console.log(this.similar_footballers_insta);
+    console.log(this.similar_footballers_sofifa);
+    console.log('++++++++++++++++++');
+    
+
+
+  }
+  string2array(inputString: string) {
+    try {
+      inputString = inputString.replace(/"/g, '');
+      const regex = /["{](.*?)[:](.*?)[,}]/g;
+      const matches = inputString.matchAll(regex);
+
+      const dataDictArray = Array.from(matches, match => ({ 'Name': match[1], 'Score': parseFloat(match[2]) }));
+      return dataDictArray;
+    } catch (error) {
+      console.error(error);
+      return [];
+    }
+  }
+  
+  async fetch_http_endpoint(url: string) {
+    const response = await this.http.get(url).toPromise();
+    return response;
   }
 }
