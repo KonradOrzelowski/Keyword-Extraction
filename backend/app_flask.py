@@ -89,5 +89,10 @@ def get_sofifa_similarity(player_name: str, number: int = 5):
     
     return jsonify(similarity)
 
+@app.route("/atr/sofifa/<player_name>", methods=["GET"])
+def get_footbaler_atr(player_name: str):
+    atr = so.get_footballer_atr(pn.dct_profiles[player_name])
+    return jsonify(atr.to_json())
+
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
