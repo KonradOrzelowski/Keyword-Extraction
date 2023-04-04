@@ -91,8 +91,9 @@ def get_sofifa_similarity(player_name: str, number: int = 5):
 
 @app.route("/atr/sofifa/<player_name>", methods=["GET"])
 def get_footbaler_atr(player_name: str):
-    atr = so.get_footballer_atr(pn.dct_profiles[player_name])
-    return jsonify(atr.to_json())
+    atr = so.get_footballer_atr(pn.dct_profiles[player_name]).to_dict('records')[0]
+    print(atr)
+    return jsonify(atr)
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')

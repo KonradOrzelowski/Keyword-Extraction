@@ -14,6 +14,7 @@ export class PageFootballerDetailsComponent implements OnInit {
 
   similar_footballers_insta : any;
   similar_footballers_sofifa: any;
+  atr_sofifa: any;
 
   constructor(private route: ActivatedRoute, private http: HttpClient, private dataService: DataService) {
     
@@ -28,6 +29,18 @@ export class PageFootballerDetailsComponent implements OnInit {
   
     const similar_footballers_sofifa_str:any = await this.fetch_http_endpoint(`http://127.0.0.1:5000/similarity/sofifa/${this.data}`);
     this.similar_footballers_sofifa = this.string2array(similar_footballers_sofifa_str);
+
+    this.atr_sofifa  = await this.fetch_http_endpoint(`http://127.0.0.1:5000/atr/sofifa/${this.data}`);
+    // object to array
+    
+
+    
+
+    // json to array
+    //this.atr_sofifa = this.string2array(this.atr_sofifa);
+    // console.log();
+    // console.log(typeof(this.atr_sofifa));
+
   }
   
   string2array(str2transform: string) {

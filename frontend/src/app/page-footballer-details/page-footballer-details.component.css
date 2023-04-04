@@ -1,0 +1,17 @@
+.container {
+    display: flex;
+    justify-content: space-between;
+  }
+  
+  .left-column {
+    width: 30%;
+  }
+  
+  .center-column {
+    width: 40%;
+  }
+  
+  .right-column {
+    width: 30%;
+  }
+  

@@ -1,15 +1,86 @@
-<p>The data passed from the home page is: |{{ data }}|</p>
+<div class="container">
+    
+<div class="left-column">
+    <div>
+      <h2>Attacking</h2>
+      <p>Crossing: {{atr_sofifa['Crossing']}}</p>
+      <p>Finishing: {{atr_sofifa['Finishing']}}</p>
+      <p>Head accuracy: {{atr_sofifa['Head accuracy']}}</p>
+      <p>Short passing: {{atr_sofifa['Short passing']}}</p>
+      <p>Volley: {{atr_sofifa['Volley']}}</p>
+    </div>
+    
+    <div>
+      <h2>Skill</h2>
+      <p>Dribbling: {{atr_sofifa['Dribbling']}}</p>
+      <p>Long passing: {{atr_sofifa['Long passing']}}</p>
+    </div>
+    
+    <div>
+      <h2>Movement</h2>
+      <p>Acceleration: {{atr_sofifa['Acceleration']}}</p>
+      <p>Speed: {{atr_sofifa['Speed']}}</p>
+      <p>Agility: {{atr_sofifa['Agility']}}</p>
+      <p>Reactions: {{atr_sofifa['Reactions']}}</p>
+      <p>Balance: {{atr_sofifa['Balance']}}</p>
+    </div>
+    
+    <div>
+      <h2>Power</h2>
+      <p>Endurance: {{atr_sofifa['Endurance']}}</p>
+      <p>Strength: {{atr_sofifa['Strength']}}</p>
+      <p>Precision: {{atr_sofifa['Precision']}}</p>
+      <p>Placement_mental: {{atr_sofifa['Placement_mental']}}</p>
+    </div>
+    
+    <div>
+      <h2>Mentality</h2>
+      <p>Aggressiveness: {{atr_sofifa['Aggressiveness']}}</p>
+      <p>Interceptions: {{atr_sofifa['Interceptions']}}</p>
+      <p>Vision: {{atr_sofifa['Vision']}}</p>
+      <p>Penalty: {{atr_sofifa['Penalty']}}</p>
+      <p>Calmness: {{atr_sofifa['Calmness']}}</p>
+    </div>
+    
+    <div>
+      <h2>Defending</h2>
+      <p>Defensive awareness: {{atr_sofifa['Defensive awareness']}}</p>
+      <p>Standing tackle: {{atr_sofifa['Standing tackle']}}</p>
+      <p>Tackle sliding: {{atr_sofifa['Tackle sliding']}}</p>
+    </div>
+</div>
 
-<!-- <p>Similar footballers: {{ similar_footballers_insta }}</p> -->
+
+<div class="center-column">
+
+<h2>Post and Profile Info</h2>
+<h3>Profile: {{ data }}</h3>
+<p> Overall: {{atr_sofifa['Overall']}}</p>
+<!-- Profile picitre from instrgram -->
+
+</div>
+  
+  
 
 
-<ul>
-    <li *ngFor="let item of similar_footballers_insta">|{{ item }}|</li>
-</ul>
+
+<div class="right-column">
+    <h2>Similar Profiles</h2>
+    <div>
+        <ul>
+            <li *ngFor="let item of similar_footballers_insta">{{ item }}</li>
+        </ul>
+    </div>    
+    <div>   
+        <ul>
+            <li *ngFor="let item of similar_footballers_sofifa">{{ item }}</li>
+        </ul>
+    </div>
+  </div>
 
 
-<ul>
-    <li *ngFor="let item of similar_footballers_sofifa">|{{ item }}|</li>
-</ul>
+
+
 
   
+</div>
