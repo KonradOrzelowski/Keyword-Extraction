@@ -3,18 +3,19 @@
 This is a web application that scrapes posts from Instagram profiles using Instaloader, extracts keywords from each post using KeyBert, and stores the data in MySQL. The application provides a set of HTTP endpoints using Flask, which can be used to retrieve and display the scraped data. The frontend is built using Angular and displays the results in a user-friendly way.
 
 ## Features
-Scrapes Instagram posts using Instaloader and stores them in MySQL
-Extracts keywords from each post using KeyBert, a neural network model designed to find keywords in text
-Provides a set of HTTP endpoints using Flask for retrieving and displaying the scraped data
-Displays the results in a user-friendly way using Angular
+- Scrapes Instagram posts using Instaloader and stores them in MySQL
+- Extracts keywords from each post using KeyBert, a neural network model designed to find keywords in text
+- Provides a set of HTTP endpoints using Flask for retrieving and displaying the scraped data
+- Displays the results in a user-friendly way using Angular
 
 ## Technologies
-Python
-Instaloader
-KeyBert
-Flask
-Angular
-MySQL
+- Python
+- Instaloader
+- KeyBert
+- Flask
+- Angular
+- Javascript/Typescript
+- MySQL
 
 ## Init 
 ### How to activate backend
