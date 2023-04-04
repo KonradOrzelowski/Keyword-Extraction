@@ -123,21 +123,7 @@ class InstagramPostsScraper:
 def main():
     scraper = InstagramPostsScraper()
     df = scraper.get_posts_from_timerange('harrykane', number_of_posts=10, time_range=30)
+    print(df.head(10))
 
-if __name__ == "__main__":
-    main()
-
-#%%
-# profile.biography       
-
-
-# profile.username
-# profile.followers
-# profile.followees       
-# profile.full_name
-
-# for idx, post in enumerate(posts):
-#     print('-----------------------------------------------')
-#     print(post.date)
-#     print(post.caption_hashtags)
-#     print(post.caption)
+# if __name__ == "__main__":
+#     main()

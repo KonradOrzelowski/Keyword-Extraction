@@ -226,14 +226,3 @@ def main():
 
 # if __name__ == "__main__":
 #     main()
-#%%
-# columns = {"id": "INT AUTO_INCREMENT PRIMARY KEY", "profile_name": "VARCHAR(255) NOT NULL", "key_word": "VARCHAR(255) NOT NULL"}
-
-# ke.connection.add_table("key_words", columns)
-
-#%%
-
-# positions = {{'id': row, 'x': x, 'y': y} for row, (x, y) in pos.items()}
-
-# for row in pos:
-#     print({'id': row, 'x': pos[row][0], 'y': pos[row][1]})
