@@ -7,41 +7,70 @@ import matplotlib.pyplot as plt
 from keyword_extraction import KeywordExtraction
 #%% Create a KeywordExtraction object
 ke = KeywordExtraction()
-df = ke.read_table('posts')
-df = df.sample(n=200, random_state=1)
+posts_df = ke.read_table('posts')
+posts_df = posts_df.sample(n=200, random_state=1)
 
-key_words = ke.get_keywords(df)
-key_words_with_id = ke.get_keywords_with_id(df)
-# key_words = ke.get_keywords(df)
+key_words = ke.get_keywords(posts_df)
+key_words_with_id = ke.get_keywords_with_id(posts_df)
 profiles_names = list(key_words.keys())
 en_key_words = ke.encode_keywords(profiles_names, key_words)
 adjacency_matrix_insta = ke.get_adjacency_matrix(profiles_names, en_key_words)
 
 
+def get_positions(adjacency_matrix: pd.DataFrame) -> list:
+    """
+    Given an adjacency matrix, returns a list of dictionaries, where each dictionary 
+    represents a node with its position in the 2D space. The positions are calculated 
+    using the spring layout algorithm from the NetworkX library.
+    
+    Parameters:
+        adjacency_matrix (pd.DataFrame): The adjacency matrix of the graph.
+    
+    Returns:
+        list: A list of dictionaries, where each dictionary contains the id, x, and y 
+        values of a node's position.
+    """
+    # Create a NetworkX graph object from the adjacency matrix
+    iG = nx.from_pandas_adjacency(adjacency_matrix)
+    
+    # Compute the positions of the nodes using the spring layout algorithm
+    pos = nx.spring_layout(iG)
+    
+    # Convert the positions to a list of dictionaries containing the node's id, x, and y values
+    positions = list(map(lambda row: ({'id': row, 'x': pos[row][0], 'y': pos[row][1]}), pos))
 
-print(adjacency_matrix_insta.head())
-
-# Plot the graph using networkx
-iG = nx.from_pandas_adjacency(adjacency_matrix_insta)
-pos = nx.spring_layout(iG)
-
-positions = list(map(lambda row: ({'id': row, 'x': pos[row][0], 'y': pos[row][1]}), pos))
-
-_,weights = zip(*nx.get_edge_attributes(iG,'weight').items())
-
-nodes = nx.draw_networkx_nodes(iG, pos, node_color="b")
-edges = nx.draw_networkx_edges(iG, pos,
-                            edge_color=weights, edge_cmap=plt.cm.Blues)
-nx.draw_networkx_labels(iG, pos, font_color="black")
+    # Return the list of node positions
+    return positions
 
 
-weighted_adjacency_list = []
+def get_weighted_edges(adjacency_matrix: pd.DataFrame) -> list:
+    """
+    Given an adjacency matrix, returns a list of dictionaries, where each dictionary 
+    represents an edge with its weight. Only the edges with weights greater than 0 
+    are included in the list.
+    
+    Parameters:
+        adjacency_matrix (pd.DataFrame): The adjacency matrix of the graph.
+    
+    Returns:
+        list: A list of dictionaries, where each dictionary contains the source, target, 
+        and weight values of an edge.
+    """
+    # Initialize an empty list to store the weighted edges
+    weighted_adjacency_list = []
+    
+    # Loop through each row and column of the adjacency matrix
+    for row_name, row in adjacency_matrix_insta.iterrows():
+        for col_name, value in row.iteritems():
+            # If the weight is greater than 0, create a dictionary with the edge information
+            if value > 0:
+                lst = {'source': row_name, 'target': col_name, 'weight': value}
+                # Append the dictionary to the list of weighted edges
+                weighted_adjacency_list.append(lst)
 
-for row_name, row in adjacency_matrix_insta.iterrows():
-    for col_name, value in row.iteritems():
-        if value > 0:
-            lst = {'source': row_name, 'target': col_name, 'weight': value}
-            weighted_adjacency_list.append(lst)
+    # Return the list of weighted edges
+    return weighted_adjacency_list
+
 
 #%% Get values from sofifa
 import profiles_names as pn
@@ -58,14 +87,14 @@ CORS(app)
 
 @app.route("/", methods=["GET"])
 def find_similar_insta():
-    return jsonify(positions)
+    return jsonify(get_positions(adjacency_matrix_insta))
 
 
 @app.route("/weighted_edges", methods=["GET"])
 def get_weighted_edges():
     print("get_weighted_edges function called")
     try:
-        result = jsonify(weighted_adjacency_list)
+        result = jsonify(get_weighted_edges(adjacency_matrix_insta))
         print("jsonify succeeded")
         return result
     except Exception as e:
@@ -101,7 +130,7 @@ import pandas as pd
 @app.route("/content/key_words/<player_name>", methods=["GET"])
 def get_key_words(player_name: str):
     # get all posts of selected profile
-    filtered_df = df[df['profile_name'] == player_name]
+    filtered_df = posts_df[posts_df['profile_name'] == player_name]
     # merge posts with keywords
     merged_df = pd.merge(filtered_df, key_words_with_id, on='id')
     # group by content and create a list of keywords
