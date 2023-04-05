@@ -2,6 +2,20 @@
 
 This is a web application that scrapes posts from Instagram profiles using Instaloader, extracts keywords from each post using KeyBert, and stores the data in MySQL. The application provides a set of HTTP endpoints using Flask, which can be used to retrieve and display the scraped data. The frontend is built using Angular and displays the results in a user-friendly way.
 
+## Backend
+The code creates instances of the KeywordExtraction and SofifaScraping classes, get Instagram posts, extracts and encodes keywords from the posts, creates an adjacency matrix based on the cosine similarity of the encoded keywords, generates a networkx graph based on the adjacency matrix, and creates a list of weighted edges to use in the visualization
+
+The Flask app provides the following endpoints:
+
+- GET /: returns a JSON object containing the positions of the nodes in the networkx graph.
+- GET /weighted_edges: returns a JSON object containing a list of weighted edges for the networkx graph.
+- GET /similarity/insta/<player_name>: returns a JSON object containing the top 5 Instagram profiles most similar to the specified profile.
+- GET /similarity/insta/<player_name>/int:number: returns a JSON object containing the top <number> Instagram profiles most similar to the specified profile.
+- GET /similarity/sofifa/<player_name>: returns a JSON object containing the top 5 football players most similar to the specified player.
+- GET /similarity/sofifa/<player_name>/int:number: returns a JSON object containing the top <number> football players most similar to the specified player.
+- GET /atr/sofifa/<player_name>: returns a JSON object containing the attributes of the specified football player.
+- GET /content/key_words/<player_name>: returns a JSON object containing the Instagram posts of the specified profile and their associated keywords.
+
 ## Features
 - Scrapes Instagram posts using Instaloader and stores them in MySQL
 - Extracts keywords from each post using KeyBert, a neural network model designed to find keywords in text
