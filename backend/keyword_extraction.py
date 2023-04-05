@@ -145,6 +145,55 @@ class KeywordExtraction:
             all_kw[profile_name] = profile_key_words
             
         return all_kw
+    
+    def get_keywords_with_id(self, docs_df: pd.DataFrame) -> pd.DataFrame:
+        unique_profile_names = docs_df['profile_name'].unique().tolist()
+        profiles = docs_df.groupby('profile_name').agg({'content': list, 'id': list})
+        df = pd.DataFrame()
+        '''
+        Cases:
+        Single post:
+            1. key_words is a list of tuples
+        Many posts:
+            2. kw is a list of lists
+            3. kw is a []
+        '''
+        for profile_name in unique_profile_names:
+            key_words = self.model.extract_keywords(docs=profiles.loc[profile_name][0], 
+                                            vectorizer=self.vectorizer)
+            # print(f' {profile_name} is a {type(key_words[0])}')
+            idx = 0
+            # Single post:
+            #   1. key_words is a list of tuples
+            if(type(key_words[0]) == tuple):
+                # print('1. kw is a list of tuples')
+                temp = pd.DataFrame(key_words)
+                temp['id'] = profiles.loc[profile_name][1][idx]
+                # print(temp)
+                df = df.append(temp, ignore_index=True)
+            # Many posts:
+            #   2. kw is a []
+            #   3. kw is a list of lists
+            else:
+                for kw in key_words:
+                    # 2. kw is a []
+                    if(kw == []):
+                        
+                        pass
+                        # temp = pd.DataFrame(['',0])
+                        # temp['id'] = profiles.loc[profile_name][1][idx]
+                        # df = df.append(temp, ignore_index=True)
+                    # 3. kw is a list of lists
+                    elif(type(kw) == list):
+                        temp = pd.DataFrame(kw)
+                        temp['id'] = profiles.loc[profile_name][1][idx]
+                        df = df.append(temp, ignore_index=True)
+                    else:
+                        TypeError('kw is not a list of tuples, list of lists or []')
+                    idx += 1
+        # change df column names
+        df.columns = ['keyword', 'distance', 'id']
+        return df    
 
     def encode_keywords(self, profiles: list[str], key_words: dict) -> dict:
         encoding = {}

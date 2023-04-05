@@ -8,8 +8,10 @@ from keyword_extraction import KeywordExtraction
 #%% Create a KeywordExtraction object
 ke = KeywordExtraction()
 df = ke.read_table('posts')
+df = df.sample(n=200, random_state=1)
 
-key_words = ke.get_keywords(df.sample(n=200, random_state=1))
+key_words = ke.get_keywords(df)
+key_words_with_id = ke.get_keywords_with_id(df)
 # key_words = ke.get_keywords(df)
 profiles_names = list(key_words.keys())
 en_key_words = ke.encode_keywords(profiles_names, key_words)
@@ -94,6 +96,18 @@ def get_footbaler_atr(player_name: str):
     atr = so.get_footballer_atr(pn.dct_profiles[player_name]).to_dict('records')[0]
     print(atr)
     return jsonify(atr)
+
+import pandas as pd
+@app.route("/content/key_words/<player_name>", methods=["GET"])
+def get_key_words(player_name: str):
+    # get all posts of selected profile
+    filtered_df = df[df['profile_name'] == player_name]
+    # merge posts with keywords
+    merged_df = pd.merge(filtered_df, key_words_with_id, on='id')
+    # group by content and create a list of keywords
+    grouped_df = merged_df.groupby(['profile_name','content', 'date'])['keyword'].apply(list).reset_index()
+    return jsonify(grouped_df.to_json(orient='records'))
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
