@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-
+import pandas as pd
 import networkx as nx
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -126,7 +126,7 @@ def get_footbaler_atr(player_name: str):
     print(atr)
     return jsonify(atr)
 
-import pandas as pd
+
 @app.route("/content/key_words/<player_name>", methods=["GET"])
 def get_key_words(player_name: str):
     # get all posts of selected profile
