@@ -167,3 +167,5 @@ old/
 
 *.ipynb
 backend/test_flask.py
+.github/workflows/test.yml
+*.bak
